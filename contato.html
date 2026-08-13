@@ -3,177 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="description" content="Entre em contato com o NEXUS.">
     <title>NEXUS — Contato</title>
-
-    <link rel="icon" href="../assets/favicon.svg">
-    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="assets/favicon.svg">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <div class="background-grid"></div>
-
 <header class="navbar">
-
-    <a href="../index.html" class="logo">
-        <span class="logo-icon">◈</span>
-        NEXUS
-    </a>
-
-    <nav>
-        <a href="../index.html">Início</a>
-        <a href="../index.html#tecnologia">Tecnologia</a>
+    <a href="index.html" class="logo"><span class="logo-icon">◈</span>NEXUS</a>
+    <nav id="nav">
+        <a href="index.html">Início</a>
+        <a href="index.html#tecnologia">Tecnologia</a>
         <a href="servicos.html">Serviços</a>
         <a href="sobre.html">Sobre</a>
         <a href="contato.html" class="active">Contato</a>
     </nav>
-
+    <button class="menu-button" id="menuButton" aria-label="Abrir menu">☰</button>
 </header>
-
 <main>
-
 <section class="section" style="padding-top:180px;">
-
     <div class="section-heading">
-
-        <div class="section-number">
-            01 / CONTATO
-        </div>
-
-        <h2>
-            Vamos criar o
-            <span>próximo nível.</span>
-        </h2>
-
-        <p>
-            Conte-nos sobre sua ideia, projeto ou desafio.
-            Nossa equipe está pronta para iniciar uma conexão.
-        </p>
-
+        <div class="section-number">01 / CONTATO</div>
+        <h2>Vamos criar o <span>próximo nível.</span></h2>
+        <p>Conte-nos sobre sua ideia, projeto ou desafio. Nossa equipe está pronta para iniciar uma conexão.</p>
     </div>
-
-    <form
-        id="contactForm"
-        style="
-            max-width:700px;
-            margin-top:60px;
-            display:grid;
-            gap:15px;
-        "
-    >
-
-        <input
-            type="text"
-            placeholder="SEU NOME"
-            required
-            style="
-                width:100%;
-                padding:18px;
-                background:rgba(255,255,255,.025);
-                border:1px solid rgba(255,255,255,.1);
-                color:white;
-                outline:none;
-            "
-        >
-
-        <input
-            type="email"
-            placeholder="SEU E-MAIL"
-            required
-            style="
-                width:100%;
-                padding:18px;
-                background:rgba(255,255,255,.025);
-                border:1px solid rgba(255,255,255,.1);
-                color:white;
-                outline:none;
-            "
-        >
-
-        <textarea
-            placeholder="SUA MENSAGEM"
-            required
-            rows="7"
-            style="
-                width:100%;
-                padding:18px;
-                background:rgba(255,255,255,.025);
-                border:1px solid rgba(255,255,255,.1);
-                color:white;
-                outline:none;
-                resize:vertical;
-            "
-        ></textarea>
-
-        <button
-            type="submit"
-            class="button primary"
-            style="border:0; cursor:pointer; width:max-content;"
-        >
-            ENVIAR MENSAGEM →
-        </button>
-
-        <p
-            id="formMessage"
-            style="
-                display:none;
-                color:#00f7ff;
-                font-size:12px;
-            "
-        >
-            CONEXÃO ESTABELECIDA. MENSAGEM PRONTA PARA ENVIO.
-        </p>
-
+    <form id="contactForm" class="contact-form" novalidate>
+        <label>Nome<input id="name" name="name" type="text" autocomplete="name" placeholder="SEU NOME" required minlength="2" maxlength="120"></label>
+        <label>E-mail<input id="email" name="email" type="email" autocomplete="email" placeholder="SEU E-MAIL" required maxlength="254"></label>
+        <label>Mensagem<textarea id="message" name="message" placeholder="SUA MENSAGEM" rows="7" required minlength="5" maxlength="5000"></textarea></label>
+        <button type="submit" class="button primary" id="submitButton">ENVIAR MENSAGEM <span>→</span></button>
+        <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
     </form>
-
 </section>
-
 </main>
-
 <footer>
-
-    <div class="footer-top">
-
-        <a href="../index.html" class="logo">
-            <span class="logo-icon">◈</span>
-            NEXUS
-        </a>
-
-        <p>Technology beyond limits.</p>
-
-    </div>
-
-    <div class="footer-bottom">
-
-        <span>© 2026 NEXUS SYSTEMS</span>
-
-        <span class="online">
-            <i></i> SYSTEM ONLINE
-        </span>
-
-    </div>
-
+    <div class="footer-top"><a href="index.html" class="logo"><span class="logo-icon">◈</span>NEXUS</a><p>Technology beyond limits.</p></div>
+    <div class="footer-bottom"><span>© 2026 NEXUS SYSTEMS</span><span class="online"><i></i> SYSTEM ONLINE</span></div>
 </footer>
-
-<script src="../script.js"></script>
-
-<script>
-
-const form = document.getElementById("contactForm");
-const message = document.getElementById("formMessage");
-
-form.addEventListener("submit", function(event) {
-
-    event.preventDefault();
-
-    message.style.display = "block";
-
-    form.reset();
-
-});
-
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
