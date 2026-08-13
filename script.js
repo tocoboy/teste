@@ -3,7 +3,7 @@ const menuButton = document.getElementById('menuButton');
 const nav = document.getElementById('nav');
 
 // API pública do backend hospedado no Render.
-const API_BASE = 'https://nexus-api.onrender.com';
+const API_BASE = 'https://nexus-api-qiue.onrender.com';
 
 if (cursor) {
   document.addEventListener('mousemove', event => {
