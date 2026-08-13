@@ -7,14 +7,30 @@ const HOST = process.env.HOST || '0.0.0.0';
 const FRONTEND_URL = process.env.FRONTEND_URL || '*';
 const rateLimit = new Map();
 
+const configuredOrigins = FRONTEND_URL === '*'
+  ? ['*']
+  : FRONTEND_URL.split(',').map(value => value.trim()).filter(Boolean);
+
 const pool = process.env.DATABASE_URL
   ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false }, max: 5 })
   : null;
 
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  if (configuredOrigins.includes('*') || configuredOrigins.includes(origin)) return true;
+
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
 function corsOrigin(req) {
-  if (FRONTEND_URL === '*') return '*';
   const origin = req.headers.origin;
-  return origin === FRONTEND_URL ? origin : FRONTEND_URL;
+  if (!origin) return configuredOrigins.includes('*') ? '*' : configuredOrigins[0];
+  return isAllowedOrigin(origin) ? origin : 'null';
 }
 
 function send(res, status, body, req) {
@@ -25,7 +41,7 @@ function send(res, status, body, req) {
     'Vary': 'Origin',
     'Content-Type': 'application/json; charset=utf-8',
   });
-  res.end(JSON.stringify(body));
+  res.end(status === 204 ? undefined : JSON.stringify(body));
 }
 
 async function initDatabase() {
@@ -78,7 +94,13 @@ async function saveMessage(entry) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-    if (req.method === 'OPTIONS') return send(res, 204, {}, req);
+
+    if (req.method === 'OPTIONS') {
+      if (!isAllowedOrigin(req.headers.origin)) {
+        return send(res, 403, { ok: false, error: 'Origem não permitida.' }, req);
+      }
+      return send(res, 204, {}, req);
+    }
 
     if (req.method === 'GET' && url.pathname === '/api/health') {
       let database = 'not-configured';
@@ -90,6 +112,10 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/api/contact') {
+      if (!isAllowedOrigin(req.headers.origin)) {
+        return send(res, 403, { ok: false, error: 'Origem não permitida.' }, req);
+      }
+
       if (!allowed(req.socket.remoteAddress || 'unknown')) {
         return send(res, 429, { ok: false, error: 'Muitas tentativas. Aguarde um minuto.' }, req);
       }
