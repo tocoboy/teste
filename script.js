@@ -1,144 +1,108 @@
-// ===============================
-// NEXUS SYSTEM
-// ===============================
+const cursor = document.querySelector('.cursor-glow');
+const menuButton = document.getElementById('menuButton');
+const nav = document.getElementById('nav');
 
-const cursor = document.querySelector(".cursor-glow");
-const menuButton = document.getElementById("menuButton");
-const nav = document.getElementById("nav");
+// Defina window.NEXUS_API_URL em uma configuração antes deste script quando a API estiver hospedada separadamente.
+const API_BASE = (window.NEXUS_API_URL || '').replace(/\/$/, '');
 
-// Cursor luminoso
-document.addEventListener("mousemove", (event) => {
-
-    if (!cursor) return;
-
+if (cursor) {
+  document.addEventListener('mousemove', event => {
     cursor.style.left = `${event.clientX}px`;
     cursor.style.top = `${event.clientY}px`;
+  });
+}
 
-});
-
-
-// Menu mobile
 if (menuButton && nav) {
+  menuButton.addEventListener('click', () => {
+    nav.classList.toggle('open');
+    menuButton.textContent = nav.classList.contains('open') ? '×' : '☰';
+    menuButton.setAttribute('aria-expanded', String(nav.classList.contains('open')));
+  });
 
-    menuButton.addEventListener("click", () => {
-        nav.classList.toggle("open");
-
-        menuButton.textContent =
-            nav.classList.contains("open") ? "×" : "☰";
-    });
-
+  nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+    nav.classList.remove('open');
+    menuButton.textContent = '☰';
+    menuButton.setAttribute('aria-expanded', 'false');
+  }));
 }
 
-
-// Fechar menu ao clicar em um link
-if (nav) {
-
-    nav.querySelectorAll("a").forEach(link => {
-
-        link.addEventListener("click", () => {
-            nav.classList.remove("open");
-
-            if (menuButton) {
-                menuButton.textContent = "☰";
-            }
-        });
-
-    });
-
-}
-
-
-// Links internos com scroll suave
 document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', event => {
+    const target = document.querySelector(link.getAttribute('href'));
+    if (!target) return;
+    event.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
 
-    link.addEventListener("click", event => {
-
-        const targetId = link.getAttribute("href");
-
-        if (targetId === "#") return;
-
-        const target = document.querySelector(targetId);
-
-        if (!target) return;
-
-        event.preventDefault();
-
-        target.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a');
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach(link => link.classList.remove('active'));
+      const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
     });
+  }, { threshold: 0.45 });
+  sections.forEach(section => observer.observe(section));
+}
 
-});
+const cards = document.querySelectorAll('.tech-card, .resource-item');
+if ('IntersectionObserver' in window) {
+  const cardObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('visible');
+      cardObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.15 });
+  cards.forEach(card => cardObserver.observe(card));
+} else {
+  cards.forEach(card => card.classList.add('visible'));
+}
 
+const contactForm = document.getElementById('contactForm');
+const formMessage = document.getElementById('formMessage');
+const submitButton = document.getElementById('submitButton');
 
-// Ativar item da navegação conforme a seção
-const sections = document.querySelectorAll("section[id]");
-const navLinks = document.querySelectorAll("nav a");
+if (contactForm) {
+  contactForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    formMessage.textContent = '';
+    formMessage.className = 'form-message';
 
-const observer = new IntersectionObserver(
-    entries => {
+    if (!contactForm.reportValidity()) return;
 
-        entries.forEach(entry => {
-
-            if (!entry.isIntersecting) return;
-
-            navLinks.forEach(link => {
-                link.classList.remove("active");
-            });
-
-            const activeLink = document.querySelector(
-                `nav a[href="#${entry.target.id}"]`
-            );
-
-            if (activeLink) {
-                activeLink.classList.add("active");
-            }
-
-        });
-
-    },
-    {
-        threshold: 0.45
+    if (!API_BASE) {
+      formMessage.textContent = 'API ainda não configurada. Defina NEXUS_API_URL para conectar este formulário ao backend.';
+      formMessage.classList.add('error');
+      return;
     }
-);
 
-sections.forEach(section => observer.observe(section));
+    const data = Object.fromEntries(new FormData(contactForm).entries());
+    submitButton.disabled = true;
+    submitButton.style.opacity = '0.6';
 
+    try {
+      const response = await fetch(`${API_BASE}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.error || 'Falha ao enviar.');
 
-// Pequeno efeito de entrada nos cards
-const cards = document.querySelectorAll(
-    ".tech-card, .resource-item"
-);
-
-const cardObserver = new IntersectionObserver(
-    entries => {
-
-        entries.forEach(entry => {
-
-            if (entry.isIntersecting) {
-
-                entry.target.style.opacity = "1";
-                entry.target.style.transform = "translateY(0)";
-
-            }
-
-        });
-
-    },
-    {
-        threshold: 0.15
+      contactForm.reset();
+      formMessage.textContent = 'CONEXÃO ESTABELECIDA. MENSAGEM RECEBIDA PELO NEXUS.';
+      formMessage.classList.add('success');
+    } catch (error) {
+      formMessage.textContent = error.message || 'Não foi possível enviar a mensagem.';
+      formMessage.classList.add('error');
+    } finally {
+      submitButton.disabled = false;
+      submitButton.style.opacity = '';
     }
-);
-
-cards.forEach(card => {
-
-    card.style.opacity = "0";
-    card.style.transform = "translateY(30px)";
-    card.style.transition =
-        "opacity .7s ease, transform .7s ease";
-
-    cardObserver.observe(card);
-
-});
+  });
+}
