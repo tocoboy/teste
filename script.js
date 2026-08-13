@@ -2,8 +2,8 @@ const cursor = document.querySelector('.cursor-glow');
 const menuButton = document.getElementById('menuButton');
 const nav = document.getElementById('nav');
 
-// Defina window.NEXUS_API_URL em uma configuração antes deste script quando a API estiver hospedada separadamente.
-const API_BASE = (window.NEXUS_API_URL || '').replace(/\/$/, '');
+// API pública do backend hospedado no Render.
+const API_BASE = 'https://nexus-api.onrender.com';
 
 if (cursor) {
   document.addEventListener('mousemove', event => {
@@ -74,12 +74,6 @@ if (contactForm) {
     formMessage.className = 'form-message';
 
     if (!contactForm.reportValidity()) return;
-
-    if (!API_BASE) {
-      formMessage.textContent = 'API ainda não configurada. Defina NEXUS_API_URL para conectar este formulário ao backend.';
-      formMessage.classList.add('error');
-      return;
-    }
 
     const data = Object.fromEntries(new FormData(contactForm).entries());
     submitButton.disabled = true;
