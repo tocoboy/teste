@@ -16,7 +16,7 @@ services:
           name: nexus-db
           property: connectionString
       - key: FRONTEND_URL
-        value: https://tocoboy.github.io/teste/
+        value: https://tocoboy.github.io
 
 databases:
   - name: nexus-db
