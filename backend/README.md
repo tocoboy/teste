@@ -25,7 +25,7 @@ No PowerShell, você também pode definir as variáveis explicitamente:
 
 ```powershell
 $env:DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/nexus'
-$env:FRONTEND_URL = 'http://localhost:5500'
+$env:FRONTEND_URL = 'http://localhost:5500,http://127.0.0.1:5500'
 pnpm start
 ```
 
@@ -47,7 +47,7 @@ A API inicia em `http://localhost:3000` por padrão.
 | `DATABASE_URL` | Conexão PostgreSQL; obrigatória em produção | — |
 | `DATABASE_SSL` | Ativa TLS no cliente PostgreSQL | `false` |
 | `DATABASE_SSL_REJECT_UNAUTHORIZED` | Valida o certificado/CA do banco | `true` |
-| `FRONTEND_URL` | Origens CORS separadas por vírgula; obrigatória em produção | localhost nas portas 5500 |
+| `FRONTEND_URL` | Origens CORS exatas, separadas por vírgula; obrigatória em produção | `http://localhost:5500,http://127.0.0.1:5500` |
 | `TRUST_PROXY` | Confia no primeiro IP de `X-Forwarded-For` | `false` |
 | `BODY_LIMIT_BYTES` | Limite do JSON em bytes | `100000` |
 | `RATE_LIMIT_MAX` | Envios por janela e cliente | `5` |
@@ -69,3 +69,5 @@ O usuário configurado em `DATABASE_URL` precisa de permissões para criar e alt
 ## Produção
 
 O Blueprint `render.yaml` implanta a API e um PostgreSQL. O plano gratuito de banco é adequado apenas para testes descartáveis; use um plano com backups e política de retenção apropriada para dados reais.
+
+Neste cenário, o frontend continua local e consome a API pública do Render. Por isso, o Blueprint permite exclusivamente `http://localhost:5500` e `http://127.0.0.1:5500`. O endpoint de contato e seu preflight rejeitam origens diferentes, `Origin: null` e requisições sem `Origin`; curingas não são aceitos em produção. As rotas `GET /api/live` e `GET /api/health` permanecem acessíveis sem `Origin` para monitoramento do Render.

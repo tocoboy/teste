@@ -183,7 +183,7 @@ function getClientIp(req, trustProxy) {
 }
 
 function isAllowedOrigin(origin, allowedOrigins) {
-  if (!origin) return true;
+  if (typeof origin !== 'string' || !origin || origin === 'null') return false;
   return allowedOrigins.includes('*') || allowedOrigins.includes(origin.replace(/\/$/, ''));
 }
 
@@ -203,8 +203,6 @@ function responseHeaders(req, allowedOrigins) {
 
   if (origin && isAllowedOrigin(origin, allowedOrigins)) {
     headers['Access-Control-Allow-Origin'] = allowedOrigins.includes('*') ? '*' : origin;
-  } else if (!origin && allowedOrigins.includes('*')) {
-    headers['Access-Control-Allow-Origin'] = '*';
   }
   return headers;
 }

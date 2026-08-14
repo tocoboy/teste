@@ -8,6 +8,9 @@ const DEFAULT_API_URL = 'https://nexus-api-qiue.onrender.com';
 const configuredApiUrl = String(window.NEXUS_API_URL || '').trim();
 const API_BASE = (configuredApiUrl || DEFAULT_API_URL).replace(/\/+$/, '');
 const REQUEST_TIMEOUT_MS = 15_000;
+const HEALTH_CHECK_TIMEOUT_MS = 75_000;
+const HEALTH_CHECK_RETRY_DELAY_MS = 5_000;
+const HEALTH_CHECK_MAX_ATTEMPTS = 2;
 
 if (cursor && precisePointer && !reducedMotion) {
   let animationFrame;
@@ -186,22 +189,90 @@ if (contactForm && formMessage && submitButton) {
 
 const systemStatus = document.querySelectorAll('[data-system-status]');
 if (systemStatus.length > 0) {
-  systemStatus.forEach(element => { element.lastChild.textContent = ' VERIFICANDO...'; });
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 5_000);
-  fetch(`${API_BASE}/api/health`, { headers: { Accept: 'application/json' }, signal: controller.signal })
-    .then(response => {
-      if (!response.ok) throw new Error('unavailable');
-      systemStatus.forEach(element => {
-        element.classList.remove('unavailable');
-        element.lastChild.textContent = ' SISTEMA ONLINE';
+  const hostname = window.location.hostname.toLowerCase();
+  const isLocalFrontend = hostname === 'localhost'
+    || hostname.endsWith('.localhost')
+    || hostname === '127.0.0.1'
+    || hostname === '::1'
+    || hostname === '[::1]';
+
+  function setSystemStatus(message, unavailable = false) {
+    systemStatus.forEach(element => {
+      element.classList.toggle('unavailable', unavailable);
+      element.lastChild.textContent = ` ${message}`;
+    });
+  }
+
+  function createHealthError(message, retryable) {
+    const error = new Error(message);
+    error.retryable = retryable;
+    return error;
+  }
+
+  async function requestHealth(deadline) {
+    const remainingMs = deadline - Date.now();
+    if (remainingMs <= 0) {
+      const error = createHealthError('health-check-timeout', false);
+      error.name = 'AbortError';
+      throw error;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), remainingMs);
+    try {
+      const response = await fetch(`${API_BASE}/api/health`, {
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
       });
-    })
-    .catch(() => {
-      systemStatus.forEach(element => {
-        element.classList.add('unavailable');
-        element.lastChild.textContent = ' STATUS INDISPONÍVEL';
-      });
-    })
-    .finally(() => window.clearTimeout(timeout));
+      if (!response.ok) {
+        throw createHealthError(
+          'health-check-unavailable',
+          response.status === 429 || response.status >= 500
+        );
+      }
+
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        // O Render pode responder temporariamente com sua página HTML de inicialização.
+        throw createHealthError('health-check-invalid-json', true);
+      }
+      if (result?.ok !== true || result.database !== 'connected') {
+        throw createHealthError('health-check-invalid-payload', true);
+      }
+      return result;
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  async function checkSystemHealth() {
+    const deadline = Date.now() + HEALTH_CHECK_TIMEOUT_MS;
+    setSystemStatus(isLocalFrontend
+      ? 'INICIALIZANDO API; ISSO PODE LEVAR ATÉ 75 SEGUNDOS...'
+      : 'VERIFICANDO API...');
+
+    for (let attempt = 1; attempt <= HEALTH_CHECK_MAX_ATTEMPTS; attempt += 1) {
+      try {
+        await requestHealth(deadline);
+        setSystemStatus('SISTEMA ONLINE');
+        return;
+      } catch (error) {
+        const hasTimeForRetry = deadline - Date.now() > HEALTH_CHECK_RETRY_DELAY_MS;
+        const shouldRetry = attempt < HEALTH_CHECK_MAX_ATTEMPTS
+          && error.name !== 'AbortError'
+          && error.retryable !== false
+          && hasTimeForRetry;
+        if (!shouldRetry) break;
+
+        setSystemStatus('API AINDA INICIALIZANDO; NOVA TENTATIVA...');
+        await new Promise(resolve => window.setTimeout(resolve, HEALTH_CHECK_RETRY_DELAY_MS));
+      }
+    }
+
+    setSystemStatus('STATUS INDISPONÍVEL', true);
+  }
+
+  void checkSystemHealth();
 }

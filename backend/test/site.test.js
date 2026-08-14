@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
+const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..', '..');
 const pages = ['index.html', 'sobre.html', 'servicos.html', 'contato.html', 'privacidade.html'];
@@ -45,15 +46,93 @@ test('the contact form includes accessible feedback, spam protection and privacy
   assert.match(contactCss, /\.contact-ready \.js-required-notice/);
 });
 
-test('the frontend API client is configurable and handles timeouts defensively', () => {
+test('the frontend API client is configurable and handles Render cold starts defensively', () => {
   const script = fs.readFileSync(path.join(root, 'script.js'), 'utf8');
   assert.match(script, /window\.NEXUS_API_URL/);
   assert.match(script, /AbortController/);
   assert.match(script, /content-type/i);
   assert.match(script, /aria-busy/);
   assert.match(script, /\/api\/health/);
+  assert.match(script, /const HEALTH_CHECK_TIMEOUT_MS = 75_000/);
+  assert.match(script, /const HEALTH_CHECK_RETRY_DELAY_MS = 5_000/);
+  assert.match(script, /const HEALTH_CHECK_MAX_ATTEMPTS = 2/);
+  assert.match(script, /hostname === 'localhost'/);
+  assert.match(script, /const deadline = Date\.now\(\) \+ HEALTH_CHECK_TIMEOUT_MS/);
+  assert.match(script, /deadline - Date\.now\(\) > HEALTH_CHECK_RETRY_DELAY_MS/);
+  assert.match(script, /result\?\.ok !== true \|\| result\.database !== 'connected'/);
+  assert.match(script, /health-check-invalid-json', true/);
+  assert.match(script, /attempt < HEALTH_CHECK_MAX_ATTEMPTS/);
+  assert.match(script, /INICIALIZANDO API/);
+  assert.match(script, /NOVA TENTATIVA/);
+  assert.doesNotMatch(script, /controller\.abort\(\), 5_000/);
   assert.match(script, /classList\.add\('contact-ready'\)/);
   assert.match(script, /target\.focus\(\{ preventScroll: true \}\)/);
+});
+
+test('the health indicator retries a transient Render page before reporting online', async () => {
+  const script = fs.readFileSync(path.join(root, 'script.js'), 'utf8');
+  const statusClasses = new Set();
+  const statusElement = {
+    classList: {
+      toggle(name, enabled) {
+        if (enabled) statusClasses.add(name);
+        else statusClasses.delete(name);
+      },
+    },
+    lastChild: { textContent: ' STATUS NÃO VERIFICADO' },
+  };
+  let healthRequests = 0;
+
+  const windowObject = {
+    location: { hostname: 'localhost' },
+    matchMedia: () => ({ matches: false }),
+    NEXUS_API_URL: '',
+    requestAnimationFrame: callback => callback(),
+    setTimeout(callback, delay) {
+      if (delay === 5_000) queueMicrotask(callback);
+      return delay;
+    },
+    clearTimeout() {},
+  };
+  const documentObject = {
+    documentElement: { classList: { add() {} } },
+    querySelector: () => null,
+    getElementById: () => null,
+    querySelectorAll: selector => selector === '[data-system-status]' ? [statusElement] : [],
+  };
+  const context = {
+    AbortController,
+    Date,
+    Error,
+    Promise,
+    document: documentObject,
+    fetch: async () => {
+      healthRequests += 1;
+      if (healthRequests === 1) {
+        return {
+          ok: true,
+          status: 200,
+          async json() { throw new SyntaxError('temporary Render HTML'); },
+        };
+      }
+      return {
+        ok: true,
+        status: 200,
+        async json() { return { ok: true, database: 'connected' }; },
+      };
+    },
+    queueMicrotask,
+    window: windowObject,
+  };
+
+  vm.runInNewContext(script, context);
+  for (let turn = 0; turn < 5 && healthRequests < 2; turn += 1) {
+    await new Promise(resolve => setImmediate(resolve));
+  }
+
+  assert.equal(healthRequests, 2);
+  assert.equal(statusElement.lastChild.textContent, ' SISTEMA ONLINE');
+  assert.equal(statusClasses.has('unavailable'), false);
 });
 
 test('navigation is consistent across pages', () => {

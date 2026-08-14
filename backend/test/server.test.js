@@ -11,10 +11,13 @@ const {
 } = require('../server');
 
 const silentLogger = { log() {}, error() {} };
+const LOCALHOST_ORIGIN = 'http://localhost:5500';
+const LOOPBACK_ORIGIN = 'http://127.0.0.1:5500';
+const LOCAL_ORIGINS = [LOCALHOST_ORIGIN, LOOPBACK_ORIGIN];
 
 function makeConfig(overrides = {}) {
   return {
-    allowedOrigins: ['https://example.com'],
+    allowedOrigins: LOCAL_ORIGINS,
     bodyLimitBytes: 100_000,
     rateLimitMax: 5,
     rateLimitWindowMs: 60_000,
@@ -90,7 +93,7 @@ function contactRequest(server, payload, overrides = {}) {
     path: '/api/contact',
     ...requestOverrides,
     headers: {
-      Origin: 'https://example.com',
+      Origin: LOCALHOST_ORIGIN,
       'Content-Type': 'application/json; charset=utf-8',
       ...extraHeaders,
     },
@@ -101,16 +104,16 @@ function contactRequest(server, payload, overrides = {}) {
 test('production configuration requires the frontend and database URLs', () => {
   assert.throws(() => loadConfig({ NODE_ENV: 'production' }), /FRONTEND_URL/);
   assert.throws(
-    () => loadConfig({ NODE_ENV: 'production', FRONTEND_URL: 'https://example.com' }),
+    () => loadConfig({ NODE_ENV: 'production', FRONTEND_URL: LOCALHOST_ORIGIN }),
     /DATABASE_URL/
   );
   const config = loadConfig({
     NODE_ENV: 'production',
-    FRONTEND_URL: 'https://one.example, https://two.example/',
+    FRONTEND_URL: LOCAL_ORIGINS.join(','),
     DATABASE_URL: 'postgresql://database/nexus',
     TRUST_PROXY: 'true',
   });
-  assert.deepEqual(config.allowedOrigins, ['https://one.example', 'https://two.example']);
+  assert.deepEqual(config.allowedOrigins, LOCAL_ORIGINS);
   assert.equal(config.trustProxy, true);
   assert.throws(
     () => loadConfig({ NODE_ENV: 'production', FRONTEND_URL: '*', DATABASE_URL: 'postgresql://database/nexus' }),
@@ -167,15 +170,17 @@ test('database initialization creates the schema, retention column, index and cl
 
 test('CORS preflight returns the expected contract only for allowed origins', async () => {
   await withServer({ config: makeConfig(), pool: new FakePool() }, async server => {
-    const allowed = await request(server, {
-      method: 'OPTIONS',
-      path: '/api/contact',
-      headers: { Origin: 'https://example.com', 'Access-Control-Request-Method': 'POST' },
-    });
-    assert.equal(allowed.status, 204);
-    assert.equal(allowed.body, null);
-    assert.equal(allowed.headers['access-control-allow-origin'], 'https://example.com');
-    assert.match(allowed.headers['access-control-allow-methods'], /POST/);
+    for (const origin of LOCAL_ORIGINS) {
+      const allowed = await request(server, {
+        method: 'OPTIONS',
+        path: '/api/contact',
+        headers: { Origin: origin, 'Access-Control-Request-Method': 'POST' },
+      });
+      assert.equal(allowed.status, 204);
+      assert.equal(allowed.body, null);
+      assert.equal(allowed.headers['access-control-allow-origin'], origin);
+      assert.match(allowed.headers['access-control-allow-methods'], /POST/);
+    }
 
     const denied = await request(server, {
       method: 'OPTIONS',
@@ -184,6 +189,16 @@ test('CORS preflight returns the expected contract only for allowed origins', as
     });
     assert.equal(denied.status, 403);
     assert.equal(denied.headers['access-control-allow-origin'], undefined);
+
+    for (const headers of [{}, { Origin: 'null' }]) {
+      const nonBrowserOrigin = await request(server, {
+        method: 'OPTIONS',
+        path: '/api/contact',
+        headers: { ...headers, 'Access-Control-Request-Method': 'POST' },
+      });
+      assert.equal(nonBrowserOrigin.status, 403);
+      assert.equal(nonBrowserOrigin.headers['access-control-allow-origin'], undefined);
+    }
   });
 });
 
@@ -200,7 +215,7 @@ test('a valid contact is normalized, persisted and returned with CORS headers', 
     assert.equal(response.status, 201);
     assert.equal(response.body.ok, true);
     assert.match(response.body.id, /^[0-9a-f-]{36}$/);
-    assert.equal(response.headers['access-control-allow-origin'], 'https://example.com');
+    assert.equal(response.headers['access-control-allow-origin'], LOCALHOST_ORIGIN);
     assert.equal(response.headers['ratelimit-remaining'], '4');
 
     const insert = pool.queries.find(query => query.text.startsWith('INSERT INTO'));
@@ -224,7 +239,7 @@ test('malformed JSON, unsupported media and oversized bodies have precise errors
     const unsupported = await request(server, {
       method: 'POST',
       path: '/api/contact',
-      headers: { Origin: 'https://example.com', 'Content-Type': 'text/plain' },
+      headers: { Origin: LOCALHOST_ORIGIN, 'Content-Type': 'text/plain' },
       body: 'not json',
     });
     assert.equal(unsupported.status, 415);
@@ -240,14 +255,30 @@ test('malformed JSON, unsupported media and oversized bodies have precise errors
 });
 
 test('disallowed origins are rejected without an allow-origin header', async () => {
-  await withServer({ config: makeConfig(), pool: new FakePool() }, async server => {
-    const response = await contactRequest(server, {
+  const pool = new FakePool();
+  await withServer({ config: makeConfig(), pool }, async server => {
+    const payload = {
       name: 'Ada',
       email: 'ada@example.com',
       message: 'Hello',
-    }, { headers: { Origin: 'https://attacker.example' } });
+    };
+    const response = await contactRequest(server, payload, { headers: { Origin: 'https://attacker.example' } });
     assert.equal(response.status, 403);
     assert.equal(response.headers['access-control-allow-origin'], undefined);
+
+    const missingOrigin = await request(server, {
+      method: 'POST',
+      path: '/api/contact',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify(payload),
+    });
+    assert.equal(missingOrigin.status, 403);
+    assert.equal(missingOrigin.headers['access-control-allow-origin'], undefined);
+
+    const nullOrigin = await contactRequest(server, payload, { headers: { Origin: 'null' } });
+    assert.equal(nullOrigin.status, 403);
+    assert.equal(nullOrigin.headers['access-control-allow-origin'], undefined);
+    assert.equal(pool.queries.some(query => query.text.startsWith('INSERT INTO')), false);
   });
 });
 
