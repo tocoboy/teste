@@ -4,41 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NEXUS — tecnologia além dos limites.">
+    <meta name="theme-color" content="#03040b">
     <title>NEXUS — Tecnologia além dos limites</title>
     <link rel="icon" href="assets/favicon.svg">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="cursor-glow"></div><div class="background-grid"></div><div class="stars"></div>
+<a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+<div class="cursor-glow" aria-hidden="true"></div>
+<div class="background-grid" aria-hidden="true"></div>
+<div class="stars" aria-hidden="true"></div>
+
 <header class="navbar">
-    <a href="index.html" class="logo"><span class="logo-icon">◈</span><span>NEXUS</span></a>
-    <nav id="nav">
-        <a href="#inicio" class="active">Início</a><a href="#tecnologia">Tecnologia</a><a href="#recursos">Recursos</a><a href="sobre.html">Sobre</a><a href="contato.html">Contato</a>
+    <a href="index.html" class="logo" aria-label="NEXUS — página inicial">
+        <span class="logo-icon" aria-hidden="true">◈</span><span>NEXUS</span>
+    </a>
+    <nav id="nav" aria-label="Navegação principal">
+        <a href="#inicio" class="active" aria-current="location">Início</a>
+        <a href="#tecnologia">Tecnologia</a>
+        <a href="#recursos">Recursos</a>
+        <a href="servicos.html">Serviços</a>
+        <a href="sobre.html">Sobre</a>
+        <a href="contato.html">Contato</a>
     </nav>
-    <button class="menu-button" id="menuButton" aria-label="Abrir menu" aria-expanded="false">☰</button>
+    <button class="menu-button" id="menuButton" type="button" aria-label="Abrir menu" aria-controls="nav" aria-expanded="false">☰</button>
 </header>
-<main>
-<section class="hero" id="inicio">
-    <div class="hero-content">
-        <div class="badge"><span></span>SISTEMA ONLINE</div>
-        <h1>O futuro <strong>começa aqui.</strong></h1>
-        <p>Uma nova geração de tecnologia criada para conectar pessoas, dados e possibilidades em uma única experiência.</p>
-        <div class="hero-buttons"><a href="#tecnologia" class="button primary">Explorar sistema <span>→</span></a><a href="contato.html" class="button secondary">Falar conosco</a></div>
-        <div class="hero-stats"><div><strong>99.9%</strong><span>UPTIME</span></div><div><strong>24/7</strong><span>MONITORAMENTO</span></div><div><strong>∞</strong><span>POSSIBILIDADES</span></div></div>
-    </div>
-    <div class="hero-visual"><div class="orbit orbit-1"></div><div class="orbit orbit-2"></div><div class="orbit orbit-3"></div><div class="core"><div class="core-ring"></div><div class="core-center">◈</div></div><div class="floating-card card-top"><span class="card-icon">⌁</span><div><strong>NEURAL CORE</strong><small>ACTIVE</small></div></div><div class="floating-card card-bottom"><span class="signal"></span><div><strong>NETWORK</strong><small>CONNECTED</small></div></div></div>
-</section>
-<section class="section" id="tecnologia">
-    <div class="section-heading"><div class="section-number">01 / TECNOLOGIA</div><h2>Construído para o <span>amanhã.</span></h2><p>O NEXUS combina inteligência, velocidade e segurança para criar experiências digitais preparadas para o futuro.</p></div>
-    <div class="technology-grid"><article class="tech-card featured"><div class="tech-number">01</div><div class="tech-icon">◈</div><h3>Inteligência</h3><p>Sistemas inteligentes capazes de interpretar dados, identificar padrões e tomar decisões em tempo real.</p><a href="servicos.html">SAIBA MAIS →</a></article><article class="tech-card"><div class="tech-number">02</div><div class="tech-icon">⌁</div><h3>Velocidade</h3><p>Infraestrutura otimizada para entregar resultados rápidos e experiências extremamente fluidas.</p><a href="servicos.html">SAIBA MAIS →</a></article><article class="tech-card"><div class="tech-number">03</div><div class="tech-icon">◇</div><h3>Segurança</h3><p>Arquitetura desenvolvida para proteger informações críticas em todas as camadas do sistema.</p><a href="servicos.html">SAIBA MAIS →</a></article></div>
-</section>
-<section class="section resources" id="recursos">
-    <div class="section-heading"><div class="section-number">02 / RECURSOS</div><h2>Uma plataforma. <span>Infinitas possibilidades.</span></h2></div>
-    <div class="resource-list"><div class="resource-item"><span>01</span><div><h3>Cloud Intelligence</h3><p>Processamento inteligente baseado em nuvem.</p></div><b>→</b></div><div class="resource-item"><span>02</span><div><h3>Real-Time Analytics</h3><p>Visualize e interprete informações instantaneamente.</p></div><b>→</b></div><div class="resource-item"><span>03</span><div><h3>Secure Infrastructure</h3><p>Proteção avançada para dados e sistemas.</p></div><b>→</b></div><div class="resource-item"><span>04</span><div><h3>Adaptive Systems</h3><p>Tecnologia preparada para evoluir junto com você.</p></div><b>→</b></div></div>
-</section>
-<section class="cta"><div class="cta-glow"></div><div class="section-number">03 / NEXT STEP</div><h2>Pronto para entrar <span>no futuro?</span></h2><p>Descubra o que podemos construir juntos.</p><a href="contato.html" class="button primary">Iniciar conexão <span>→</span></a></section>
+
+<main id="main-content" tabindex="-1">
+    <section class="hero" id="inicio">
+        <div class="hero-content">
+            <div class="badge"><span aria-hidden="true"></span>SISTEMA NEXUS</div>
+            <h1>O futuro <strong>começa aqui.</strong></h1>
+            <p>Uma nova geração de tecnologia criada para conectar pessoas, dados e possibilidades em uma única experiência.</p>
+            <div class="hero-buttons">
+                <a href="#tecnologia" class="button primary">Explorar sistema <span aria-hidden="true">→</span></a>
+                <a href="contato.html" class="button secondary">Falar conosco</a>
+            </div>
+            <div class="hero-stats" aria-label="Indicadores da plataforma">
+                <div><strong>99,9%</strong><span>UPTIME</span></div>
+                <div><strong>24/7</strong><span>MONITORAMENTO</span></div>
+                <div><strong>∞</strong><span>POSSIBILIDADES</span></div>
+            </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+            <div class="orbit orbit-1"></div>
+            <div class="orbit orbit-2"></div>
+            <div class="orbit orbit-3"></div>
+            <div class="core"><div class="core-ring"></div><div class="core-center">◈</div></div>
+            <div class="floating-card card-top"><span class="card-icon">⌁</span><div><strong>NEURAL CORE</strong><small>ACTIVE</small></div></div>
+            <div class="floating-card card-bottom"><span class="signal"></span><div><strong>NETWORK</strong><small>CONNECTED</small></div></div>
+        </div>
+    </section>
+
+    <section class="section" id="tecnologia">
+        <div class="section-heading">
+            <div class="section-number">01 / TECNOLOGIA</div>
+            <h2>Construído para o <span>amanhã.</span></h2>
+            <p>O NEXUS combina inteligência, velocidade e segurança para criar experiências digitais preparadas para o futuro.</p>
+        </div>
+        <div class="technology-grid">
+            <article class="tech-card featured">
+                <div class="tech-number">01</div><div class="tech-icon" aria-hidden="true">◈</div>
+                <h3>Inteligência</h3>
+                <p>Sistemas inteligentes capazes de interpretar dados, identificar padrões e tomar decisões em tempo real.</p>
+                <a href="servicos.html">SAIBA MAIS <span aria-hidden="true">→</span></a>
+            </article>
+            <article class="tech-card">
+                <div class="tech-number">02</div><div class="tech-icon" aria-hidden="true">⌁</div>
+                <h3>Velocidade</h3>
+                <p>Infraestrutura otimizada para entregar resultados rápidos e experiências extremamente fluidas.</p>
+                <a href="servicos.html">SAIBA MAIS <span aria-hidden="true">→</span></a>
+            </article>
+            <article class="tech-card">
+                <div class="tech-number">03</div><div class="tech-icon" aria-hidden="true">◇</div>
+                <h3>Segurança</h3>
+                <p>Arquitetura desenvolvida para proteger informações críticas em todas as camadas do sistema.</p>
+                <a href="servicos.html">SAIBA MAIS <span aria-hidden="true">→</span></a>
+            </article>
+        </div>
+    </section>
+
+    <section class="section resources" id="recursos">
+        <div class="section-heading">
+            <div class="section-number">02 / RECURSOS</div>
+            <h2>Uma plataforma. <span>Infinitas possibilidades.</span></h2>
+        </div>
+        <div class="resource-list">
+            <div class="resource-item"><span>01</span><div><h3>Cloud Intelligence</h3><p>Processamento inteligente baseado em nuvem.</p></div><b aria-hidden="true">→</b></div>
+            <div class="resource-item"><span>02</span><div><h3>Real-Time Analytics</h3><p>Visualize e interprete informações instantaneamente.</p></div><b aria-hidden="true">→</b></div>
+            <div class="resource-item"><span>03</span><div><h3>Secure Infrastructure</h3><p>Proteção avançada para dados e sistemas.</p></div><b aria-hidden="true">→</b></div>
+            <div class="resource-item"><span>04</span><div><h3>Adaptive Systems</h3><p>Tecnologia preparada para evoluir junto com você.</p></div><b aria-hidden="true">→</b></div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="cta-glow" aria-hidden="true"></div>
+        <div class="section-number">03 / NEXT STEP</div>
+        <h2>Pronto para entrar <span>no futuro?</span></h2>
+        <p>Descubra o que podemos construir juntos.</p>
+        <a href="contato.html" class="button primary">Iniciar conexão <span aria-hidden="true">→</span></a>
+    </section>
 </main>
-<footer><div class="footer-top"><a href="index.html" class="logo"><span class="logo-icon">◈</span>NEXUS</a><p>Technology beyond limits.</p></div><div class="footer-bottom"><span>© 2026 NEXUS SYSTEMS</span><div><a href="sobre.html">SOBRE</a><a href="servicos.html">SERVIÇOS</a><a href="contato.html">CONTATO</a></div><span class="online"><i></i> SYSTEM ONLINE</span></div></footer>
-<script src="script.js"></script>
+
+<footer>
+    <div class="footer-top">
+        <a href="index.html" class="logo"><span class="logo-icon" aria-hidden="true">◈</span>NEXUS</a>
+        <p>Technology beyond limits.</p>
+    </div>
+    <div class="footer-bottom">
+        <span>© 2026 NEXUS SYSTEMS</span>
+        <div><a href="sobre.html">SOBRE</a><a href="servicos.html">SERVIÇOS</a><a href="contato.html">CONTATO</a><a href="privacidade.html">PRIVACIDADE</a></div>
+        <span class="online" data-system-status role="status" aria-live="polite"><i aria-hidden="true"></i> STATUS NÃO VERIFICADO</span>
+    </div>
+</footer>
+<script src="script.js" defer></script>
 </body>
 </html>

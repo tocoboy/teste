@@ -1,2 +1,60 @@
 <!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Entre em contato com o NEXUS."><title>NEXUS — Contato</title><link rel="icon" href="assets/favicon.svg"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="contact.css"></head><body><div class="background-grid"></div><header class="navbar"><a href="index.html" class="logo"><span class="logo-icon">◈</span>NEXUS</a><nav id="nav"><a href="index.html">Início</a><a href="index.html#tecnologia">Tecnologia</a><a href="servicos.html">Serviços</a><a href="sobre.html">Sobre</a><a href="contato.html" class="active">Contato</a></nav><button class="menu-button" id="menuButton" aria-label="Abrir menu" aria-expanded="false">☰</button></header><main><section class="section" style="padding-top:180px;"><div class="section-heading"><div class="section-number">01 / CONTATO</div><h2>Vamos criar o <span>próximo nível.</span></h2><p>Conte-nos sobre sua ideia, projeto ou desafio. Nossa equipe está pronta para iniciar uma conexão.</p></div><form id="contactForm" class="contact-form" novalidate><label>Nome<input id="name" name="name" type="text" autocomplete="name" placeholder="SEU NOME" required minlength="2" maxlength="120"></label><label>E-mail<input id="email" name="email" type="email" autocomplete="email" placeholder="SEU E-MAIL" required maxlength="254"></label><label>Mensagem<textarea id="message" name="message" placeholder="SUA MENSAGEM" rows="7" required minlength="5" maxlength="5000"></textarea></label><button type="submit" class="button primary" id="submitButton">ENVIAR MENSAGEM <span>→</span></button><p id="formMessage" class="form-message" role="status" aria-live="polite"></p></form></section></main><footer><div class="footer-top"><a href="index.html" class="logo"><span class="logo-icon">◈</span>NEXUS</a><p>Technology beyond limits.</p></div><div class="footer-bottom"><span>© 2026 NEXUS SYSTEMS</span><span class="online"><i></i> SYSTEM ONLINE</span></div></footer><script src="script.js"></script></body></html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Entre em contato com o NEXUS.">
+    <meta name="theme-color" content="#03040b">
+    <title>NEXUS — Contato</title>
+    <link rel="icon" href="assets/favicon.svg">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="contact.css">
+</head>
+<body>
+<a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+<div class="background-grid" aria-hidden="true"></div>
+<header class="navbar">
+    <a href="index.html" class="logo" aria-label="NEXUS — página inicial"><span class="logo-icon" aria-hidden="true">◈</span>NEXUS</a>
+    <nav id="nav" aria-label="Navegação principal">
+        <a href="index.html">Início</a><a href="index.html#tecnologia">Tecnologia</a><a href="index.html#recursos">Recursos</a><a href="servicos.html">Serviços</a><a href="sobre.html">Sobre</a><a href="contato.html" class="active" aria-current="page">Contato</a>
+    </nav>
+    <button class="menu-button" id="menuButton" type="button" aria-label="Abrir menu" aria-controls="nav" aria-expanded="false">☰</button>
+</header>
+
+<main id="main-content" tabindex="-1">
+    <section class="section page-section">
+        <div class="section-heading">
+            <div class="section-number">01 / CONTATO</div>
+            <h1>Vamos criar o <span>próximo nível.</span></h1>
+            <p>Conte-nos sobre sua ideia, projeto ou desafio. Nossa equipe está pronta para iniciar uma conexão.</p>
+        </div>
+        <p class="noscript-notice js-required-notice">O formulário seguro requer JavaScript. Ative-o para enviar sua mensagem.</p>
+        <form id="contactForm" class="contact-form" aria-describedby="privacyNotice" aria-busy="false">
+            <label for="name">Nome</label>
+            <input id="name" name="name" type="text" autocomplete="name" placeholder="SEU NOME" required minlength="2" maxlength="120">
+
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="SEU E-MAIL" required maxlength="254">
+
+            <label for="message">Mensagem</label>
+            <textarea id="message" name="message" placeholder="SUA MENSAGEM" rows="7" required minlength="5" maxlength="5000"></textarea>
+
+            <div class="form-honeypot" aria-hidden="true">
+                <label for="website">Não preencha este campo</label>
+                <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+
+            <p id="privacyNotice" class="privacy-notice">Usaremos seus dados somente para responder a esta solicitação. Consulte nosso <a href="privacidade.html">aviso de privacidade</a>.</p>
+            <button type="submit" class="button primary" id="submitButton">ENVIAR MENSAGEM <span aria-hidden="true">→</span></button>
+            <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
+        </form>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-top"><a href="index.html" class="logo"><span class="logo-icon" aria-hidden="true">◈</span>NEXUS</a><p>Technology beyond limits.</p></div>
+    <div class="footer-bottom"><span>© 2026 NEXUS SYSTEMS</span><div><a href="privacidade.html">PRIVACIDADE</a></div><span class="online" data-system-status role="status" aria-live="polite"><i aria-hidden="true"></i> STATUS NÃO VERIFICADO</span></div>
+</footer>
+<script src="script.js" defer></script>
+</body>
+</html>

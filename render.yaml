@@ -4,8 +4,8 @@ services:
     runtime: node
     plan: free
     rootDir: backend
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: pnpm install --frozen-lockfile --prod
+    startCommand: pnpm start
     healthCheckPath: /api/health
     autoDeployTrigger: commit
     envVars:
@@ -17,6 +17,12 @@ services:
           property: connectionString
       - key: FRONTEND_URL
         value: https://tocoboy.github.io
+      - key: TRUST_PROXY
+        value: "true"
+      - key: DATABASE_SSL
+        value: "false"
+      - key: CONTACT_RETENTION_DAYS
+        value: "180"
 
 databases:
   - name: nexus-db

@@ -1,6 +1,6 @@
 # NEXUS
 
-Site institucional NEXUS com frontend estático e backend/API separado.
+Site institucional com frontend estático, uma API Node.js e persistência em PostgreSQL.
 
 ## Estrutura
 
@@ -10,6 +10,7 @@ Site institucional NEXUS com frontend estático e backend/API separado.
 ├── sobre.html
 ├── servicos.html
 ├── contato.html
+├── privacidade.html
 ├── style.css
 ├── contact.css
 ├── script.js
@@ -17,18 +18,32 @@ Site institucional NEXUS com frontend estático e backend/API separado.
 │   └── favicon.svg
 └── backend/
     ├── package.json
+    ├── pnpm-lock.yaml
     ├── server.js
-    ├── .gitignore
-    ├── README.md
-    └── data/
+    └── test/
 ```
 
 ## Frontend
 
-A branch `pages` contém o frontend pronto para GitHub Pages. O formulário de contato usa `window.NEXUS_API_URL` para apontar para a API.
+O frontend pode ser servido por qualquer servidor estático, incluindo GitHub Pages. A origem usada também precisa constar em `FRONTEND_URL` na API. Por padrão, o formulário usa `https://nexus-api-qiue.onrender.com`.
+
+Para outro ambiente, defina a URL da API antes de carregar `script.js`:
+
+```html
+<script>window.NEXUS_API_URL = 'http://localhost:3000';</script>
+<script src="script.js" defer></script>
+```
 
 ## Backend
 
-O backend é Node.js sem dependências externas. Consulte `backend/README.md` para execução e configuração.
+O backend exige Node.js 20 a 24, pnpm, o pacote `pg` e PostgreSQL para aceitar mensagens. Consulte [`backend/README.md`](backend/README.md) para configuração, execução e testes.
 
-> GitHub Pages não executa Node.js. O frontend pode permanecer no Pages enquanto a API roda separadamente em um ambiente compatível com Node.js.
+> GitHub Pages hospeda apenas o frontend. A API e o banco devem ser implantados em serviços próprios para Node.js e PostgreSQL.
+
+## Verificação
+
+```bash
+cd backend
+pnpm install --frozen-lockfile
+pnpm run check
+```

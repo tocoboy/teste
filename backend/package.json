@@ -6,11 +6,15 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "lint": "node --check server.js && node --check ../script.js",
+    "test": "node --test test/*.test.js",
+    "check": "node --check server.js && node --check ../script.js && node --test test/*.test.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20 <25"
   },
+  "packageManager": "pnpm@11.19.0",
   "dependencies": {
     "pg": "^8.16.3"
   }
